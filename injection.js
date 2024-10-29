@@ -129,8 +129,8 @@ function modifyCode(text) {
 	addReplacement('skinManager.loadTextures(),', ',this.loadVape(),');
 	addReplacement('async loadSpritesheet(){', `
 		async loadVape() {
-			this.vapeTexture = await this.loader.loadAsync("https://raw.githubusercontent.com/7GrandDadPGN/VapeForMiniblox/main/assets/logo.png");
-			this.v4Texture = await this.loader.loadAsync("https://raw.githubusercontent.com/7GrandDadPGN/VapeForMiniblox/main/assets/logov4.png");
+			this.vapeTexture = await this.loader.loadAsync("https://raw.githubusercontent.com/CynosaHacks/VapeForMiniblox/main/assets/logo.png");
+			this.v4Texture = await this.loader.loadAsync("https://raw.githubusercontent.com/CynosaHacks/VapeForMiniblox/main/assets/logov4.png");
 		}
 		async loadSpritesheet(){
 	`, true);
@@ -355,7 +355,7 @@ function modifyCode(text) {
 		if (_ == "GrandDad") {
 			const $ = skins[_];
 			return new Promise((et, tt) => {
-				textureManager.loader.load("https://raw.githubusercontent.com/7GrandDadPGN/VapeForMiniblox/main/assets/skin.png", rt => {
+				textureManager.loader.load("https://raw.githubusercontent.com/CynosaHacks/VapeForMiniblox/main/assets/skin.png", rt => {
 					const nt = {
 						atlas: rt,
 						id: _,
@@ -373,7 +373,7 @@ function modifyCode(text) {
 		if (_ == "GrandDad") {
 			const $ = capes[_];
 			return new Promise((et, tt) => {
-				textureManager.loader.load("https://raw.githubusercontent.com/7GrandDadPGN/VapeForMiniblox/main/assets/cape.png", rt => {
+				textureManager.loader.load("https://raw.githubusercontent.com/CynosaHacks/VapeForMiniblox/main/assets/cape.png", rt => {
 					const nt = {
 						atlas: rt,
 						id: _,
