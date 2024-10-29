@@ -1,7 +1,7 @@
 let replacements = {};
 let dumpedVarNames = {};
 const storeName = "a" + crypto.randomUUID().replaceAll("-", "").substring(16);
-const vapeName = "Central +";
+const vapeName = "Central for Miniblox @ /CynosaHacks/VapeForMiniblox/";
 
 // ANTICHEAT HOOK
 function replaceAndCopyFunction(oldFunc, newFunc) {
