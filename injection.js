@@ -755,7 +755,7 @@ function modifyCode(text) {
 				}
 			});
 			flybypass = fly.addoption("Bypass", Boolean, true);
-			flyvalue = fly.addoption("Speed", Number, 2);
+			flyvalue = fly.addoption("Speed", Number, 5);
 			flyvert = fly.addoption("Vertical", Number, 0.7);
 
 			new Module("InvWalk", function() {});
