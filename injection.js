@@ -186,7 +186,7 @@ function modifyCode(text) {
 
 	// HOOKS
 	addReplacement('+=$*rt+_*nt}', `
-		if (this == player$ 1) {
+		if (this == player$1) {
 			for(const [index, func] of Object.entries(tickLoop)) if (func) func();
 		}
 	`);
@@ -232,6 +232,168 @@ function modifyCode(text) {
 	`);
 
 	// REBIND
+	addReplacement('bindKeysWithDefaults("b",j=>{', 'bindKeysWithDefaults("semicolon",j=>{', true);
+	addReplacement('bindKeysWithDefaults("i",j=>{', 'bindKeysWithDefaults("apostrophe",j=>{', true);
+
+	// SPRINT
+	addReplacement('at=keyPressedDump("shift")||touchcontrols.sprinting', '||enabledModules["Sprint"]');
+
+	// VELOCITY
+	addReplacement('"CPacketEntityVelocity",$=>{const et=j.world.entitiesDump.get($.id);', `
+		if (player$1 && $.id == player$1.id && enabledModules["Velocity"]) {
+			if (velocityhori[1] == 0 && velocityvert[1] == 0) return;
+			$.motion = new Vector3$1($.motion.x * velocityhori[1], $.motion.y * velocityvert[1], $.motion.z * velocityhori[1]);
+		}
+	`);
+	addReplacement('"CPacketExplosion",$=>{', `
+		if ($.playerPos && enabledModules["Velocity"]) {
+			if (velocityhori[1] == 0 && velocityvert[1] == 0) return;
+			$.playerPos = new Vector3$1($.playerPos.x * velocityhori[1], $.playerPos.y * velocityvert[1], $.playerPos.z * velocityhori[1]);
+		}
+	`);
+
+	// KEEPSPRINT
+	addReplacement('tt>0&&($.addVelocity(-Math.sin(this.yaw)*tt*.5,.1,-Math.cos(this.yaw)*tt*.5),this.motion.x*=.6,this.motion.z*=.6,this.setSprinting(!1)),', `
+		if (tt > 0) {
+			$.addVelocity(-Math.sin(this.yaw) * tt * .5, .1, -Math.cos(this.yaw) * tt * .5);
+			if (this != player$1 || !enabledModules["KeepSprint"]) {
+				this.motion.x *= .6;
+				this.motion.z *= .6;
+				this.setSprinting(!1);
+			}
+		}
+	`, true);
+
+	// KILLAURA
+	addReplacement('else player$1.isBlocking()?', 'else (player$1.isBlocking() || blocking)?', true);
+	addReplacement('this.entity.isBlocking()', '(this.entity.isBlocking() || this.entity == player$1 && blocking)', true);
+	addReplacement('const nt={onGround:this.onGround}', `, realYaw = sendYaw || this.yaw`);
+	addReplacement('this.yaw-this.', 'realYaw-this.', true);
+	addReplacement('nt.yaw=player.yaw', 'nt.yaw=realYaw', true);
+	addReplacement('this.lastReportedYawDump=this.yaw,', 'this.lastReportedYawDump=realYaw,', true);
+	addReplacement('this.neck.rotation.y=controls$1.yaw', 'this.neck.rotation.y=(sendYaw||controls$1.yaw)', true);
+
+	// NOSLOWDOWN
+	addReplacement('const $=this.jumping,et=this.sneak,tt=-.8,rt=this.moveForwardDump<=tt;', `
+		const slowdownCheck = this.isUsingItem() && !enabledModules["NoSlowdown"];
+	`);
+	addReplacement('updatePlayerMoveState(),this.isUsingItem()', 'updatePlayerMoveState(),slowdownCheck', true);
+	addReplacement('it&&!this.isUsingItem()', 'it&&!slowdownCheck', true);
+	addReplacement('0),this.sneak', ' && !enabledModules["NoSlowdown"]');
+
+	// STEP
+	addReplacement('et.y=this.stepHeight;', 'et.y=(enabledModules["Step"]?Math.max(stepheight[1],this.stepHeight):this.stepHeight);', true);
+
+	// WTAP
+	addReplacement('this.dead||this.getHealth()<=0)return;', `
+		if (enabledModules["WTap"]) player$1.serverSprintState = false;
+	`);
+
+	// INVWALK
+	addReplacement('keyPressed(j)&&Game.isActive(!1)', 'keyPressed(j)&&(Game.isActive(!1)||enabledModules["InvWalk"]&&!game.chat.showInput)', true);
+
+	// TIMER
+	addReplacement('MSPT=50,', '', true);
+	addReplacement('MODE="production";', 'let MSPT = 50;');
+	addReplacement('ut(this,"controller");', 'ut(this, "tickLoop");');
+	addReplacement('setInterval(()=>this.fixedUpdate(),MSPT)', 'this.tickLoop=setInterval(()=>this.fixedUpdate(),MSPT)', true);
+
+	// PHASE
+	addReplacement('calculateXOffset(ft,this.getEntityBoundingBox(),tt.x)', 'enabledModules["Phase"] ? tt.x : calculateXOffset(ft,this.getEntityBoundingBox(),tt.x)', true);
+	addReplacement('calculateYOffset(ft,this.getEntityBoundingBox(),tt.y)', 'enabledModules["Phase"] && keyPressedDump("shift") ? tt.y : calculateYOffset(ft,this.getEntityBoundingBox(),tt.y)', true);
+	addReplacement('calculateZOffset(ft,this.getEntityBoundingBox(),tt.z)', 'enabledModules["Phase"] ? tt.z : calculateZOffset(ft,this.getEntityBoundingBox(),tt.z)', true);
+	addReplacement('pushOutOfBlocks(_,$,et){', 'if (enabledModules["Phase"]) return;');
+
+	// AUTORESPAWN
+	addReplacement('this.game.info.showSignEditor=null,exitPointerLock())', `
+		if (this.showDeathScreen && enabledModules["AutoRespawn"]) {
+			ClientSocket.sendPacket(new SPacketRespawn$1);
+		}
+	`);
+
+	// CHAMS
+	addReplacement(')&&(et.mesh.visible=this.shouldRenderEntity(et))', `
+		if (enabledModules["Chams"] && et && et.id != player$1.id) {
+			for(const mesh in et.mesh.meshes) {
+				et.mesh.meshes[mesh].material.depthTest = false;
+				et.mesh.meshes[mesh].renderOrder = 3;
+			}
+
+			for(const mesh in et.mesh.armorMesh) {
+				et.mesh.armorMesh[mesh].material.depthTest = false;
+				et.mesh.armorMesh[mesh].renderOrder = 4;
+			}
+
+			if (et.mesh.capeMesh) {
+				et.mesh.capeMesh.children[0].material.depthTest = false;
+				et.mesh.capeMesh.children[0].renderOrder = 5;
+			}
+
+			if (et.mesh.hatMesh) {
+				for(const mesh of et.mesh.hatMesh.children[0].children) {
+					if (!mesh.material) continue;
+					mesh.material.depthTest = false;
+					mesh.renderOrder = 4;
+				}
+			}
+		}
+	`);
+
+	// SKIN
+	addReplacement('ClientSocket.on("CPacketSpawnPlayer",$=>{const et=j.world.getPlayerById($.id);', `
+		if ($.socketId === player$1.socketId && enabledModules["AntiBan"]) {
+			hud3D.remove(hud3D.rightArm);
+			hud3D.rightArm = undefined;
+			player$1.profile.cosmetics.skin = "GrandDad";
+			$.cosmetics.skin = "GrandDad";
+			$.cosmetics.cape = "GrandDad";
+		}
+	`);
+	addReplacement('bob:{id:"bob",name:"Bob",tier:0,skinny:!1},', 'GrandDad:{id:"GrandDad",name:"GrandDad",tier:2,skinny:!1},');
+	addReplacement('cloud:{id:"cloud",name:"Cloud",tier:2},', 'GrandDad:{id:"GrandDad",name:"GrandDad",tier:2},');
+	addReplacement('async downloadSkin(_){', `
+		if (_ == "GrandDad") {
+			const $ = skins[_];
+			return new Promise((et, tt) => {
+				textureManager.loader.load("https://raw.githubusercontent.com/CynosaHacks/VapeForMiniblox/main/assets/skin.png", rt => {
+					const nt = {
+						atlas: rt,
+						id: _,
+						skinny: $.skinny,
+						ratio: rt.image.width / 64
+					};
+					SkinManager.createAtlasMat(nt), this.skins[_] = nt, et();
+				}, void 0, function(rt) {
+					console.error(rt), et();
+				});
+			});
+		}
+	`);
+	addReplacement('async downloadCape(_){', `
+		if (_ == "GrandDad") {
+			const $ = capes[_];
+			return new Promise((et, tt) => {
+				textureManager.loader.load("https://raw.githubusercontent.com/CynosaHacks/VapeForMiniblox/main/assets/cape.png", rt => {
+					const nt = {
+						atlas: rt,
+						id: _,
+						name: $.name,
+						ratio: rt.image.width / 64,
+						rankLevel: $.tier,
+						isCape: !0
+					};
+					SkinManager.createAtlasMat(nt), this.capes[_] = nt, et();
+				}, void 0, function(rt) {
+					console.error(rt), et();
+				});
+			});
+		}
+	`);
+
+	// LOGIN BYPASS
+	addReplacement('new SPacketLoginStart({requestedUuid:localStorage.getItem(REQUESTED_UUID_KEY)??void 0,session:localStorage.getItem(SESSION_TOKEN_KEY)??"",hydration:localStorage.getItem("hydration")??"0",metricsId:localStorage.getItem("metrics_id")??"",clientVersion:VERSION$1})', 'new SPacketLoginStart({requestedUuid:void 0,session:(enabledModules["AntiBan"] ? "" : (localStorage.getItem(SESSION_TOKEN_KEY) ?? "")),hydration:"0",metricsId:uuid$1(),clientVersion:VERSION$1})', true);
+
+	// KEY FIX
 	addReplacement('Object.assign(keyMap,_)', '; keyMap["Semicolon"] = "semicolon"; keyMap["Apostrophe"] = "apostrophe";');
 
 	// SWING FIX
@@ -394,7 +556,7 @@ function modifyCode(text) {
 				if (callback) {
 					let ticks = 0;
 					tickLoop["AntiFall"] = function() {
-        				const ray = rayTraceBlocks(player$ 1.getEyePos(), player$1.getEyePos().clone().setY(0), false, false, false, game$1.world);
+        				const ray = rayTraceBlocks(player$1.getEyePos(), player$1.getEyePos().clone().setY(0), false, false, false, game$1.world);
 						if (player$1.fallDistance > 2.8 && !ray) {
 							player$1.motion.y = 0;
 						}
@@ -601,7 +763,7 @@ function modifyCode(text) {
 			new Module("NoSlowdown", function() {});
 
 			// NoFall
-		 new Module("NoFall", function(callback) {
+			new Module("NoFall", function(callback) {
 				if (callback) {
 					let ticks = 0;
 					tickLoop["NoFall"] = function() {
@@ -692,7 +854,7 @@ function modifyCode(text) {
 					}
 				}
 
- return base * stack.stackSize;
+				return base * stack.stackSize;
 			}
 
 			// AutoArmor
@@ -797,7 +959,7 @@ function modifyCode(text) {
 				if (callback) {
 					if (player$1) oldHeld = game$1.info.selectedSlot;
 					tickLoop["Scaffold"] = function() {
-						for(let i =  0; i < 9; i++) {
+						for(let i = 0; i < 9; i++) {
 							const item = player$1.inventory.main[i];
 							if (item && item.item instanceof ItemBlock && item.item.block.getBoundingBox().max.y == 1 && item.item.name != "tnt") {
 								switchSlot(i);
@@ -894,141 +1056,61 @@ function modifyCode(text) {
 		})();
 	`);
 
-	// Add the "stats" module
-	(function() {
-		'use strict';
-
- let fpsVisible = true;
-
-		const fontLink = document.createElement('link');
-		fontLink.href = 'https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap';
-		fontLink.rel = 'stylesheet';
-		document.head.appendChild(fontLink);
-
-		const fpsCounter = createStatElement('10px', '30%');
-		document.body.appendChild(fpsCounter);
-
-		const pingDisplay = createStatElement('40px', '30%');
-		document.body.appendChild(pingDisplay);
-
-		const FRAME_FILTER_STRENGTH = 20;
-		const PING_FILTER_STRENGTH = 3;
-
-		class ResourceMonitor {
-			constructor() {
-				this.beginTime = performance.now();
-				this.prevTime = this.beginTime;
-				this.instantFPS = 0;
-				this.filteredFPS = 0;
-				this.instantPing = 0;
-				this.filteredPing = 0;
-				this.lastFrameFinishedTimestamp = performance.now();
-				this.framesSinceGraphUpdate = 0;
-				this.lastGraphUpdateTimestamp = performance.now();
-				this.mspt = 0;
-				setInterval(() => { this.updateInstantFPS(); }, 300);
-				setInterval(() => this.checkRoundTripPing(), 1000);
-				requestAnimationFrame(() => this.frameFinished());
+	async function saveVapeConfig(profile) {
+		if (!loadedConfig) return;
+		let saveList = {};
+		for(const [name, module] of Object.entries(unsafeWindow.globalThis[storeName].modules)) {
+			saveList[name] = {enabled: module.enabled, bind: module.bind, options: {}};
+			for(const [option, setting] of Object.entries(module.options)) {
+				saveList[name].options[option] = setting[1];
 			}
+		}
+		GM_setValue("vapeConfig" + (profile ?? unsafeWindow.globalThis[storeName].profile), JSON.stringify(saveList));
+		GM_setValue("mainVapeConfig", JSON.stringify({profile: unsafeWindow.globalThis[storeName].profile}));
+	};
 
-			frameFinished() {
-				const now = performance.now();
-				let delta = now - this.lastFrameFinishedTimestamp;
-				if (delta <= 0) delta = 1;
+	async function loadVapeConfig(switched) {
+		loadedConfig = false;
+		const loadedMain = JSON.parse(await GM_getValue("mainVapeConfig", "{}")) ?? {profile: "default"};
+		unsafeWindow.globalThis[storeName].profile = switched ?? loadedMain.profile;
+		const loaded = JSON.parse(await GM_getValue("vapeConfig" + unsafeWindow.globalThis[storeName].profile, "{}"));
+		if (!loaded) {
+			loadedConfig = true;
+			return;
+		}
 
-				const fps = 1000 / delta;
-				this.lastFrameFinishedTimestamp = now;
-				this.filteredFPS += (fps - this.filteredFPS) / FRAME_FILTER_STRENGTH;
-				this.framesSinceGraphUpdate++;
-
-				requestAnimationFrame(() => this.frameFinished());
-			}
-
-			updateInstantFPS() {
-				const now = performance.now();
-				const delta = now - this.lastGraphUpdateTimestamp;
-				this.lastGraphUpdateTimestamp = now;
-				this.instantFPS = this.framesSinceGraphUpdate / (delta / 1000);
-				this.framesSinceGraphUpdate = 0;
-			}
-
-			async checkRoundTripPing() {
-				const start = performance.now();
-				try {
-					const response = await fetch('https://miniblox.io/ping', { method: 'HEAD' });
-					const end = performance.now();
-					const ping = end - start;
-					this.filteredPing += (ping - this.filteredPing) / PING_FILTER_STRENGTH;
-
-					if (fpsVisible) {
-						const currentPing = this.filteredPing;
-						pingDisplay.innerText = `${currentPing.toFixed(1)} M/S`;
-
-						if (currentPing < 50) {
-							pingDisplay.style.color = 'green';
-						} else if (currentPing < 100) {
-							pingDisplay.style.color = 'yellow';
-						} else {
-							pingDisplay.style.color = 'red';
-						}
-					}
-				} catch (error) {
-					console.error('Error calculating ping:', error);
-				} finally {
-					setTimeout(() => this.checkRoundTripPing(), 1000);
+		for(const [name, module] of Object.entries(loaded)) {
+			const realModule = unsafeWindow.globalThis[storeName].modules[name];
+			if (!realModule) continue;
+			if (realModule.enabled != module.enabled) realModule.toggle();
+			if (realModule.bind != module.bind) realModule.setbind(module.bind);
+			if (module.options) {
+				for(const [option, setting] of Object.entries(module.options)) {
+					const realOption = realModule.options[option];
+					if (!realOption) continue;
+					realOption[1] = setting;
 				}
 			}
 		}
+		loadedConfig = true;
+	};
 
-		const resourceMonitor = new ResourceMonitor();
+	async function exportVapeConfig() {
+		navigator.clipboard.writeText(await GM_getValue("vapeConfig" + unsafeWindow.globalThis[storeName].profile, "{}"));
+	};
 
-		function createStatElement(top, left) {
-			const element = document.createElement('div');
-			element.style.position = 'fixed';
-			element.style.top = top;
-			element.style.left = left;
-			element.style.transform = 'translateX(-50%)';
-			element.style.padding = '5px 10px';
-			element.style.backgroundColor = 'rgba(0, 0, 0, 0)';
-			element.style.fontSize = '14px';
-			element.style.zIndex = '9999';
-			element.style.fontFamily = '"Press Start 2P", cursive';
-			return element;
-		}
-
-		function updateDisplay() {
-			if (fpsVisible) {
-				const fps = resourceMonitor.filteredFPS;
-				fpsCounter.innerText = `${fps.toFixed(1)} F/P/S`;
-
-				if (fps > 50) {
-					fpsCounter.style.color = 'green';
-				} else if (fps > 30) {
-					fpsCounter.style.color = 'yellow';
-				} else {
-					fpsCounter.style.color = 'red';
-				}
-			}
-
-			requestAnimationFrame(updateDisplay);
-		}
-
-		document.addEventListener('keydown', function(event) {
-			if (event.key === 'F9') {
-				fpsVisible = !fpsVisible;
-				fpsCounter.style.display = fpsVisible ? 'block' : 'none';
-				pingDisplay.style.display = fpsVisible ? 'block' : 'none';
-			}
-		});
-
-		updateDisplay();
-	})();
+	async function importVapeConfig() {
+		const arg = await navigator.clipboard.readText();
+		if (!arg) return;
+		GM_setValue("vapeConfig" + unsafeWindow.globalThis[storeName].profile, arg);
+		loadVapeConfig();
+	};
 
 	let loadedConfig = false;
 	async function execute(src, oldScript) {
 		Object.defineProperty(unsafeWindow.globalThis, storeName, {value: {}, enumerable: false});
 		if (oldScript) oldScript.type = 'javascript/blocked';
-		await fetch(src).then(e => e.text()). then(e => modifyCode(e));
+		await fetch(src).then(e => e.text()).then(e => modifyCode(e));
 		if (oldScript) oldScript.type = 'module';
 		await new Promise((resolve) => {
 			const loop = setInterval(async function() {
