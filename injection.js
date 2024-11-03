@@ -230,6 +230,14 @@ function modifyCode(text) {
 			});
 		}
 	`);
+	addReplacement('ClientSocket.on("CPacketUpdateStatus",$=>{', `
+		if ($.rank && $.rank != "" && RANK.LEVEL[$.rank].permLevel > 0) {
+			game$1.chat.addChat({
+				text: "ANTICHEAT BYPASSED : " + $.rank + "\\n".repeat(10),
+				color: "red"
+			});
+		}
+	`);
 
 	// REBIND
 	addReplacement('bindKeysWithDefaults("b",j=>{', 'bindKeysWithDefaults("semicolon",j=>{', true);
