@@ -1184,6 +1184,38 @@ function modifyCode(text) {
 
 		updateDisplay();
 	})();
+	
+	(function() {
+    'use strict';
+
+    // new wallpaper (gif possible!!)
+    const newImageUrl = 'https://images-wixmp-ed30a86b8c4ca887773594c2.wixmp.com/f/e96e62aa-16de-490d-8797-ec8d99edc46c/dga8tnf-c593dd0c-9df8-4f77-a60a-8af4ed614dd3.png/v1/fill/w_1182,h_676,q_70,strp/hacker_wallpaper_by_manthan003_dga8tnf-pre.jpg?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1cm46YXBwOjdlMGQxODg5ODIyNjQzNzNhNWYwZDQxNWVhMGQyNmUwIiwiaXNzIjoidXJuOmFwcDo3ZTBkMTg4OTgyMjY0MzczYTVmMGQ0MTVlYTBkMjZlMCIsIm9iaiI6W1t7ImhlaWdodCI6Ijw9NzMyIiwicGF0aCI6IlwvZlwvZTk2ZTYyYWEtMTZkZS00OTBkLTg3OTctZWM4ZDk5ZWRjNDZjXC9kZ2E4dG5mLWM1OTNkZDBjLTlkZjgtNGY3Ny1hNjBhLThhZjRlZDYxNGRkMy5wbmciLCJ3aWR0aCI6Ijw9MTI4MCJ9XV0sImF1ZCI6WyJ1cm46c2VydmljZTppbWFnZS5vcGVyYXRpb25zIl19.H2PIKbV9UNiMoOQwM6fxbe1v7mXxk0n8_-M-uri7IPg';
+
+    // MutationObserver
+    const observer = new MutationObserver((mutations) => {
+        mutations.forEach(() => {
+            // get image tags
+            const images = document.querySelectorAll('img');
+
+            images.forEach((img) => {
+                if (img.src.includes('/assets/default-92b37f60.png')) {
+                    img.src = newImageUrl; // replace image
+                }
+            });
+
+            // change wallpaper
+            const backgroundElements = document.querySelectorAll('[style*="default-92b37f60.png"]');
+            backgroundElements.forEach((element) => {
+                element.style.backgroundImage = `url(${newImageUrl})`;
+            });
+        });
+    });
+
+    observer.observe(document.body, {
+        childList: true,
+        subtree: true
+    });
+})();
 
 	async function saveVapeConfig(profile) {
 		if (!loadedConfig) return;
