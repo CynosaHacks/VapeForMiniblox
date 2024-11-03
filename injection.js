@@ -1189,7 +1189,7 @@ function modifyCode(text) {
     'use strict';
 
     // new wallpaper (gif possible!!)
-    const newImageUrl = 'https://github.com/CynosaHacks/VapeForMiniblox/blob/9fdf025768da289f98678d44af956e1f1b854e2c/assets/BMPWALLMAIN.PNG';
+    const newImageUrl = 'https://github.com/CynosaHacks/VapeForMiniblox/assets/New Project.png';
 
     // MutationObserver
     const observer = new MutationObserver((mutations) => {
