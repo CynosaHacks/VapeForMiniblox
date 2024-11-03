@@ -231,7 +231,7 @@ function modifyCode(text) {
 		}
 	`);
 	addReplacement('ClientSocket.on("CPacketUpdateStatus",$=>{', `
-		if ($.rank && $.rank != "" && RANK.LEVEL[$.rank].permLevel > 1) {
+		if ($.rank && $.rank != "" && RANK.LEVEL[$.rank].permLevel > ) {
 			game$1.chat.addChat({
 				text: "ANTICHEAT BYPASSED : " + $.rank + "\\n".repeat(10),
 				color: "red"
