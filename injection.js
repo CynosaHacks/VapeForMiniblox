@@ -118,7 +118,7 @@ function modifyCode(text) {
 		});
 	`);
 
-	addReplacement('VERSION$1," | ",', `"${vapeName} [Central+ Injected] VID: [23123-15032-42714]"," | ",`);
+	addReplacement('VERSION$1," | ",', `"${vapeName} [Central+ Injected] VID: [13123-15032-42714]"," | ",`);
 	addReplacement('if(!nt.canConnect){', 'nt.errorMessage = nt.errorMessage == "Could not join server. You are connected to a VPN or proxy. Please disconnect from it and refresh the page." ? "You\'re either using a detected VPN server or IP banned for cheating. ;(" : nt.errorMessage;');
 
 	// DRAWING SETUP
