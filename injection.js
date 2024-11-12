@@ -304,9 +304,9 @@ function modifyCode(text) {
 	addReplacement('calculateZOffset(ft,this.getEntityBoundingBox(),tt.z)', 'enabledModules["Phase"] ? tt.z : calculateZOffset(ft,this.getEntityBoundingBox(),tt.z)', true);
 	addReplacement('pushOutOfBlocks(_,$,et){', 'if (enabledModules["Phase"]) return;');
 
-	// AUTORESPAWN
+	// ANTICHEATDISABLER - WIP MODULE FROM AUTORESPAWN
 	addReplacement('this.game.info.showSignEditor=null,exitPointerLock())', `
-		if (this.showDeathScreen && enabledModules["AutoRespawn"]) {
+		if (this.showDeathScreen && enabledModules["AnticheatDisabler"]) {
 			ClientSocket.sendPacket(new SPacketRespawn$1);
 		}
 	`);
@@ -807,7 +807,7 @@ function modifyCode(text) {
 			textguisize = textgui.addoption("TextSize", Number, 15);
 			textguishadow = textgui.addoption("Shadow", Boolean, true);
 			textgui.toggle();
-			new Module("AutoRespawn", function() {});
+			new Module("AnticheatDisabler", function() {});
 
 			// Breaker
 			let breakerrange;
