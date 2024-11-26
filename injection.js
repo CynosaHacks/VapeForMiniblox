@@ -1163,7 +1163,7 @@ function modifyCode(text) {
 		function updateDisplay() {
 			if (fpsVisible) {
 				const fps = resourceMonitor.filteredFPS;
-				fpsCounter.innerText = `${fps.toFixed(1)} F/P/S`;
+				fpsCounter.innerText = `${fps.toFixed(1)} FPS - Vsync`;
 
 				if (fps > 50) {
 					fpsCounter.style.color = 'green';
