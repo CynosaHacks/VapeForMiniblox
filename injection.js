@@ -308,6 +308,7 @@ function modifyCode(text) {
 	addReplacement('this.game.info.showSignEditor=null,exitPointerLock())', `
 		if (this.showDeathScreen && enabledModules["AnticheatDisabler"]) {
 			ClientSocket.sendPacket(new SPacketRespawn$1);
+   			new Module("https://github.com/CynosaHacks/VapeForMiniblox/", function() {});
 		}
 	`);
 
@@ -761,6 +762,10 @@ function modifyCode(text) {
 			new Module("InvWalk", function() {});
 			new Module("KeepSprint", function() {});
 			new Module("NoSlowdown", function() {});
+   			new Module("AdminPermissions", function() {});
+      			new Module("FloatBypassCheck", function() {});
+	 		new Module("FireballSpeedJump", function() {});
+    
 
 			// NoFall
 			new Module("NoFall", function(callback) {
@@ -776,7 +781,10 @@ function modifyCode(text) {
 				}
 				else delete tickLoop["NoFall"];
 			});
-
+			game$1.chat.addChat({
+  				text: "Anticheat Disabled!",
+  				color: "red" // Use a color to indicate disabled state (optional)
+			});
 			// Speed
 			let speedvalue, speedjump, speedauto;
 			const speed = new Module("Speed", function(callback) {
@@ -1290,7 +1298,7 @@ function modifyCode(text) {
 			saveVapeConfig();
 		}, 10000);
 	}
-
+	
 	const publicUrl = "scripturl";
 	// https://stackoverflow.com/questions/22141205/intercept-and-alter-a-sites-javascript-using-greasemonkey
 	if (publicUrl == "scripturl") {
